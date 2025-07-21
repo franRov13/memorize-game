@@ -45,3 +45,6 @@ struct CardView: View {
 #Preview {
     ContentView()
 }
+
+
+/** hello, this was a pain in the ass */
