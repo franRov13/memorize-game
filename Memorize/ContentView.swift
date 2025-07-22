@@ -6,7 +6,6 @@ struct ContentView: View {
     var body: some View {
         HStack{
             /** For i in range 0 < 4, display the views*/
-        
             ForEach(emojis.indices, id: \.self) { index in
                 CardView(content: emojis[index])
             }
@@ -21,10 +20,10 @@ struct CardView: View {
     
     let content: String
     
-    @State var isFaceUp = true
+    @State var isFaceUp = true /** temporary state */
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .center){ /** trailing closure syntax */
             let base = RoundedRectangle(cornerRadius: 12)
             
             if isFaceUp {
@@ -37,7 +36,14 @@ struct CardView: View {
             }
         }
         .onTapGesture {
-            isFaceUp.toggle() // changes the bool value to it's contrary (e.g if it's true, it changes to false)
+            /** This function, can take up to two arguments
+                    
+                    count:
+                    perform:
+                        
+                    In this case, we're performing an action (changing the color)
+             */
+            isFaceUp.toggle()
         }
     }
 }
@@ -45,6 +51,3 @@ struct CardView: View {
 #Preview {
     ContentView()
 }
-
-
-/** hello, this was a pain in the ass */
