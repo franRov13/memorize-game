@@ -6,7 +6,10 @@ struct ContentView: View {
     
     var body: some View {
         VStack{
-            cards
+            ScrollView {
+                cards
+            }
+            Spacer()
             cardCountAdjusters
         }
         .padding()
@@ -22,31 +25,32 @@ struct ContentView: View {
         .font(.largeTitle)
     }
     
+    
+    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
+        Button(action: {
+            cardCount += offset
+        }, label: {
+            Image(systemName: symbol)
+        })
+        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
+    }
+    
     var cardAdder: some View {
         /** adding cards button */
-        Button(action: {
-            if (cardCount < emojis.count) { cardCount += 1}
-        }, label: {
-            Image(systemName: "rectangle.stack.badge.plus")
-        })
-        .foregroundColor(.blue)
+        return cardCountAdjuster(by: +1, symbol: "rectangle.stack.badge.plus.fill")
     }
     
     var cardRemover: some View {
         /** removing card button */
-        Button(action: {
-            if (cardCount > 1) { cardCount -= 1}
-        }, label: {
-            Image(systemName: "rectangle.stack.badge.minus")
-        })
-        .foregroundColor(.red)
+        return cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus.fill")
     }
     
     
     var cards: some View {
-        HStack {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
             ForEach(0..<cardCount, id: \.self) { index in
                 CardView(content: emojis[index])
+                    .aspectRatio(2/3, contentMode: .fit)
             }
         }.foregroundColor(.orange)
     }
@@ -66,23 +70,16 @@ struct CardView: View {
         ZStack(alignment: .center){ /** trailing closure syntax */
             let base = RoundedRectangle(cornerRadius: 12)
             
-            if isFaceUp {
+            Group {
                 base.fill(.white)
                 base.strokeBorder(lineWidth: 2)
                 Text(content)
                     .font(.largeTitle)
-            }else {
-                base.fill()
             }
+            .opacity(isFaceUp ? 1 : 0)
+            base.fill().opacity(isFaceUp ? 0 : 1)
         }
         .onTapGesture {
-            /** This function, can take up to two arguments
-                    
-                    count:
-                    perform:
-                        
-                    In this case, we're performing an action (changing the color)
-             */
             isFaceUp.toggle()
         }
     }
