@@ -1,0 +1,15 @@
+
+# Xcode user files
+*.xcuserstate
+xcuserdata/
+
+# Xcode generated files
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.xcarchive
