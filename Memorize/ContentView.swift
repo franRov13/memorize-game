@@ -1,15 +1,22 @@
 import SwiftUI
 
+
+/// Main view of the Memorize Game
 struct ContentView: View {
+    /// Theme sets for the game
     let halloweenSet: Array<String> = ["👻", "😈", "🎃", "🕷️", "☠️", "🕸️", "👹", "🍭", "🍫"]
     let summerSet: Array<String> = ["🏖️", "🌞", "🍉", "🏄‍♀️", "🌊", "🍦", "🏝️", "🌴", "🩴"]
     let christmasSet: Array<String> = ["🎄", "🎅", "❄️", "⛄", "🎁", "🧦", "🍪", "🍫", "🕯️"]
-
+    
+    /// Current selected theme indez (0=Halloween, 1=Summer, 2=Christmas)
     @State private var currentThemeIndex: Int = 0
-    @State private var cardCount: Int = 4
+    /// Number of emoji
+    @State private var cardCount: Int
+    /// Shuffled emojis for the current theme
     @State private var shuffledEmojis: Array<String> = []
     
-    let themeCardCounts = [5, 4, 6]
+    
+    let themeCardCounts = [5, 4, 6] /** pre-defined number of sets per theme*/
     
     /** the current set of emojis */
     var currentEmojis: Array<String> {
@@ -27,7 +34,7 @@ struct ContentView: View {
         VStack{
             /**
              Task 1: Add a title “Memorize!” to the top of the screen. It’s a title, so it should be in a large
-                font and bold.
+             font and bold.
              */
             Text("Memorize")
                 .font(.largeTitle)
@@ -35,12 +42,17 @@ struct ContentView: View {
                 .padding()
             /**
              Task 2: Add three buttons below the title, each representing a theme. The themes are Halloween
-                Summer, and Christmas.
+             Summer, and Christmas.
              */
-            themeButtons
             ScrollView {
                 cards
             }
+            Spacer()
+            Text("Themes")
+                .font(.callout)
+                .padding()
+            Spacer()
+            themeButtons
         }
         .padding()
     }
@@ -105,15 +117,27 @@ struct ContentView: View {
     
     
     var cards: some View {
-        let emojisToShow = shuffledEmojis.isEmpty ? currentEmojis.shuffled() : shuffledEmojis
+        /** First we get the emoji set based on the theme */
+        let baseEmojis = shuffledEmojis.isEmpty ? currentEmojis : shuffledEmojis
+        
+        /** Creates the pairs (each emoji appears twice)*/
+        var cardContents: Array<String> = []
+        for i in 0..<min(cardCount, baseEmojis.count) {
+            cardContents.append(baseEmojis[i])
+            cardContents.append(baseEmojis[i]) /** each emoji appears twice */
+        }
+        
+        /** Shuffles the pairs */
+        let shuffledCards = cardContents.shuffled()
+        
+        /** Creates the grid view */
         return LazyVGrid(columns: [GridItem(.adaptive(minimum: 90))]) {
-            ForEach(0..<min(cardCount, emojisToShow.count), id: \.self) { index in
-                ForEach(0..<2, id: \.self) { _ in
-                    CardView(content: emojisToShow[index])
-                        .aspectRatio(2/3, contentMode: .fit)
-                }
+            ForEach(0..<shuffledCards.count, id: \.self) { index in
+                CardView(content: shuffledCards[index])
+                    .aspectRatio(2/3, contentMode: .fit)
             }
-        }.foregroundColor(currentThemeIndex == 0 ? .orange : (currentThemeIndex == 1 ? .blue : .red))
+            .foregroundColor(currentThemeIndex == 0 ? .orange : (currentThemeIndex == 1 ? .blue : .red))
+        }
     }
 }
 
@@ -139,12 +163,20 @@ struct CardView: View {
             .opacity(isFaceUp ? 1 : 0)
             base.fill().opacity(isFaceUp ? 0 : 1)
         }
+        .rotation3DEffect(
+            .degrees(isFaceUp ? 0 : 180),
+            axis: (x: 0.0, y: 1.0, z: 0.0)
+        )
         .onTapGesture {
-            isFaceUp.toggle()
+            withAnimation(.easeInOut(duration: 0.5)) {
+                isFaceUp.toggle()
+            }
         }
     }
 }
 
+
+/// SwiftUI preview for the ContentView
 #Preview {
     ContentView()
 }
